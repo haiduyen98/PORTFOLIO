@@ -1,1 +1,48 @@
+                                                                               --Cleaning data in SQL
 SELECT * FROM PORFOLIO.dbo.Nashville
+
+--Task 1/ Convert to Date format and update the table
+SELECT Saledate, convert(datetime, Saledate) as new_datetime2
+FROM PORFOLIO.dbo.Nashville
+
+ALTER TABLE PORFOLIO.dbo.Nashville
+ADD new_datetime2 datetime
+
+UPDATE PORFOLIO.dbo.Nashville
+SET new_datetime2= convert(datetime, Saledate)
+
+--Task 2/ Populate Owner Name data- Inner join
+
+select  a.ParcelID, b.ParcelID, a.Ownername, b.Ownername, ISNULL(a.Ownername, b.Ownername)
+from PORFOLIO.dbo.Nashville a
+JOIN PORFOLIO.dbo.Nashville b
+ON a.ParcelID=b.ParcelID
+and a.UniqueID=b.UniqueID
+where a.ownername is null
+
+--Task 3/ Devide one columns into 2 columns
+SELECT CHARINDEX(',', Owneraddress, 1) FROM PORFOLIO.dbo.Nashville
+
+SELECT SUBSTRING(Owneraddress, 1, CHARINDEX(',', Owneraddress, 1)-1) as road_address, 
+SUBSTRING(Owneraddress, CHARINDEX(',', Owneraddress, 1)+1, len(owneraddress)) as town_address
+FROM PORFOLIO.dbo.Nashville
+--Another way of using PARSENAME(object_name, part) (part is backwards), 
+---REPLACE(original_string, search_string, replacement_string)
+
+select 
+PARSENAME(replace (Owneraddress, ',','.'), 1) as state,  
+PARSENAME(replace (Owneraddress, ',','.'), 2) as town_address, 
+PARSENAME(replace (Owneraddress, ',','.'), 3) as road_address
+FROM PORFOLIO.dbo.Nashville
+
+--Change values in a column (Yes to Y, No to N)
+
+SELECT soldasvacant2,
+    CASE
+        WHEN soldasvacant2='No' THEN 'N'
+        WHEN soldasvacant2= 'Yes' THEN 'Y'
+        ELSE soldasvacant
+    END AS soldasvacant3
+FROM
+   PORFOLIO.dbo.Nashville;
+
