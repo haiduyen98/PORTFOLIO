@@ -47,13 +47,14 @@ FROM
    PORFOLIO.dbo.Nashville;
 
 --Remove duplicates using ROW NUMBER
-  WITH CTE AS (Select ParcelID, ROW_NUMBER() OVER (PARTITION BY ParcelID,
-				 PropertyAddress,
-				 SalePrice,
-				 SaleDate,
-				 LegalReference 
-  order by UniqueID) AS ROWNUM
-  from PORFOLIO.dbo.Nashville)
+  WITH CTE AS (Select ParcelID, 
+		      ROW_NUMBER() OVER (PARTITION BY 
+							ParcelID, PropertyAddress, SalePrice, SaleDate, LegalReference 
+															order by UniqueID) AS ROWNUM
+  	      FROM PORFOLIO.dbo.Nashville)
   SELECT * FROM CTE
   WHERE ROWNUM>1
+
+DELETE FROM CTE WHERE ROWNUM>1
+
 
