@@ -1,0 +1,10 @@
+                         --Covid 19 Data Exploration
+
+--Total Cases vs Total Deaths in the US, convert datatype for division, round up number
+SELECT Location, date, total_cases, new_cases, total_deaths, 
+		population, 
+		ROUND(CAST(total_deaths AS float) / CAST(total_cases AS float)*100,2) 
+		AS total_cases_total_deaths 
+		
+From PORFOLIO.dbo.Deaths
+Where location like '%states%'
