@@ -1,0 +1,93 @@
+--Covid 19 Data Exploration
+--0/ Explore demographic information of the data
+  SELECT continent, location, population, population_density, median_age, aged_65_older, aged_70_older, hosp_patients
+ from PORFOLIO.dbo.deaths
+ where continent is not null
+ group by continent, location, population, population_density, median_age, aged_65_older, aged_70_older, hosp_patients
+
+--1/LIKELIHOOD OF DYING IF YOU ARE CONTRACT COVID IN THE US
+--Total Cases vs Total Deaths in the US, convert datatype for division, round up number
+SELECT Location, date, total_cases, new_cases, total_deaths, population, ROUND(CAST(total_deaths AS float) / CAST(total_cases AS float)*100,2) AS total_cases_total_deaths 
+From PORFOLIO.dbo.Deaths
+Where location like '%states%'
+
+--2/The percentage of the population which is infected with Covid 
+Select Location, date, Population, total_cases,  
+round(cast(total_cases as float)/cast(population as float)*100,2) as PercentPopulationInfected
+from PORFOLIO.dbo.Deaths
+order by 5 desc
+
+--3/Percentage of the population which is infected with Covid group by year, month, location
+Select Location, population, DATEPART(year, date) as Year, DATEPART(month, date) as Month,
+round(sum(cast(total_cases as float)/cast(population as float)*100),2) as PercentPopulationInfected
+from PORFOLIO.dbo.Deaths
+group by DATEPART(year, date), DATEPART(month, date),location, population
+order by 1,2 
+
+--4/Countries with Highest Infection Rate compared to Population
+Select Location, Population, MAX(CAST(total_cases AS FLOAT)) as HighestInfectionCount,  
+round(Max((CAST(total_cases AS FLOAT)/CAST(population AS FLOAT)))*100,2) as highest_PercentPopulationInfected
+from PORFOLIO.dbo.Deaths
+GROUP BY location, population
+order by 4 desc
+
+--5/Countries with Highest Death Count per Population
+SELECT location, population, max(cast(total_deaths as float)) as highest_num_deaths
+from PORFOLIO.dbo.deaths
+group by location, population
+order by 3 desc
+
+--6/Contintents with the highest death count per population
+SELECT continent, sum(cast(population as float)) as total_population, 
+max(cast(total_deaths as float)) as highest_num_deaths
+from PORFOLIO.dbo.deaths
+where continent is not null
+group by continent
+order by highest_num_deaths desc
+
+--7/--Global numbers
+SELECT sum(cast(population as float)) as world_population,
+sum(cast(total_deaths as float)) as world_deaths, 
+sum(cast(total_cases as float)) as world_cases,
+round((sum(cast(total_deaths as float)))/(sum(cast(total_cases as float)))*100,2) as world_death_rate,
+round((sum(cast(total_cases as float)))/(sum(cast(population as float)))*100,2) as world_infected_rate,
+round((sum(cast(total_deaths as float)))/(sum(cast(population as float)))*100,2) as world_death_rate_over_population
+from PORFOLIO.dbo.deaths
+
+--8/ --Shows Percentage of Population that has recieved at least one Covid Vaccine
+ Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
+, SUM(convert(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/population)*100
+From PORFOLIO.dbo.deaths dea
+Join PORFOLIO.dbo.vaccine vac
+	On dea.location = vac.location
+	and dea.date = vac.date
+where dea.continent is not null 
+order by 2,3
+
+--9/Explore long-term trends and potential seasonality in COVID-19 cases and deaths.
+SELECT DATEPART(year, date) as Year, DATEPART(month, date) as Month, 
+       SUM(cast(total_cases as float)) as monthly_cases, 
+       SUM(cast(total_deaths as float)) as monthly_deaths
+FROM PORFOLIO.dbo.Deaths
+GROUP BY DATEPART(year, date), DATEPART(month, date)
+ORDER BY Year, Month;
+
+--10/Severity of the disease over time and the burden on healthcare systems
+ SELECT date, location, 
+       SUM(cast( hosp_patients as float)) as total_hospitalizations, 
+       SUM(cast(icu_patients as float)) as total_icu_admissions
+FROM PORFOLIO.dbo.deaths
+GROUP BY date, location
+ORDER BY date, location;
+
+--10/COVID-19 Testing and Positivity Rates, HANDLING 0 IN DIVISION
+SELECT date, location, 
+       SUM(cast(total_tests as float)) as cumulative_tests, 
+       CASE 
+           WHEN SUM(cast(total_tests as float)) = 0 THEN 0
+           ELSE SUM(cast(new_cases as float)) / NULLIF(SUM(cast(total_tests as float)), 0) * 100 
+       END as positivity_rate
+FROM PORFOLIO.dbo.deaths
+GROUP BY date, location
+ORDER BY date, location;
