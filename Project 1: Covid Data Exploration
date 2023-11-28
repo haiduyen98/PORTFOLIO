@@ -1,10 +1,27 @@
                          --Covid 19 Data Exploration
 
+--1/LIKELIHOOD OF DYING IF YOU ARE CONTRACT COVID IN THE US
 --Total Cases vs Total Deaths in the US, convert datatype for division, round up number
-SELECT Location, date, total_cases, new_cases, total_deaths, 
-		population, 
-		ROUND(CAST(total_deaths AS float) / CAST(total_cases AS float)*100,2) 
-		AS total_cases_total_deaths 
-		
+SELECT Location, date, total_cases, new_cases, total_deaths, population, ROUND(CAST(total_deaths AS float) / CAST(total_cases AS float)*100,2) AS total_cases_total_deaths 
 From PORFOLIO.dbo.Deaths
 Where location like '%states%'
+
+--2/The percentage of the population which is infected with Covid 
+Select Location, date, Population, total_cases,  
+round(cast(total_cases as float)/cast(population as float)*100,2) as PercentPopulationInfected
+from PORFOLIO.dbo.Deaths
+order by 5 desc
+
+--3/Percentage of the population which is infected with Covid group by year, month, location
+Select Location, population, DATEPART(year, date) as Year, DATEPART(month, date) as Month,
+round(sum(cast(total_cases as float)/cast(population as float)*100),2) as PercentPopulationInfected
+from PORFOLIO.dbo.Deaths
+group by DATEPART(year, date), DATEPART(month, date),location, population
+order by 1,2 
+
+--4/Countries with Highest Infection Rate compared to Population
+Select Location, Population, MAX(CAST(total_cases AS FLOAT)) as HighestInfectionCount,  
+round(Max((CAST(total_cases AS FLOAT)/CAST(population AS FLOAT)))*100,2) as highest_PercentPopulationInfected
+from PORFOLIO.dbo.Deaths
+GROUP BY location, population
+order by 4 desc
