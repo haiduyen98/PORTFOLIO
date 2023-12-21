@@ -73,7 +73,7 @@ INSERT INTO customer (id, customer_name, city_id, customer_address, contact_pers
 (2, 'Northern Inc', 2, '456 Maple St, Toronto', 'Jane Smith'),
 (3, 'British Goods', 3, '789 Piccadilly, London', 'Sam Johnson'),
 (4, 'Aussie Products', 4, '101 Opera House, Sydney', 'Alice Brown'),
-(5, 'German Tech', 5, '202 Alexanderplatz, Berlin', 'Max Müller'),
+(5, 'German Tech', 5, '202 Alexanderplatz, Berlin', 'Max MÃ¼ller'),
 (6, 'French Cuisine', 6, '303 Rivoli, Paris', 'Marie Dubois'),
 (7, 'Tokyo Electronics', 7, '404 Ginza, Tokyo', 'Hiro Tanaka'),
 (8, 'Seoul Fashion', 8, '505 Myeongdong, Seoul', 'Ji-Young Kim'),
