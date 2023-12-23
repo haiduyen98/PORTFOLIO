@@ -1,0 +1,42 @@
+select * from PORFOLIO.dbo.chipotle
+--identify duplicate rows 
+SELECT * FROM 
+(
+    SELECT *,
+           ROW_NUMBER() OVER (
+               PARTITION BY order_id, quantity, item_name, choice_description, item_price
+               ORDER BY (SELECT NULL)
+           ) AS row_num
+    FROM PORFOLIO.dbo.chipotle
+) AS sub
+WHERE sub.row_num > 1;
+
+--drop dulicate rows
+WITH CTE AS (
+    SELECT *,
+           ROW_NUMBER() OVER (
+               PARTITION BY order_id, quantity, item_name, choice_description, item_price
+               ORDER BY (SELECT NULL)
+           ) AS row_num
+    FROM PORFOLIO.dbo.chipotle
+)
+DELETE FROM CTE WHERE row_num > 1;
+--The most ordered item
+SELECT TOP 1 item_name, SUM(cast (quantity as float)) as total_quantity
+FROM PORFOLIO.dbo.chipotle
+GROUP BY item_name
+ORDER BY total_quantity DESC
+
+SELECT COUNT(*)
+FROM PORFOLIO.dbo.chipotle
+WHERE choice_description IS NULL;
+
+--The most ordered item in choice description
+cast (quantity as float)
+
+
+
+
+
+
+
